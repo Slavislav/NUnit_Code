@@ -1,0 +1,65 @@
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+
+namespace ExamPrep
+{
+    public class HeadLessMode
+    {
+        private WebDriver driver;
+        private const string BaseUrl = "http://softuni-qa-loadbalancer-2137572849.eu-north-1.elb.amazonaws.com/number-calculator/";
+        //ChromeOptions need to be defined on class level
+        private ChromeOptions options;
+        IWebElement firstInput;
+        IWebElement secondInput;
+        IWebElement calcButton;
+        IWebElement operationField;
+        IWebElement resultField;
+        IWebElement resetButton;
+
+       [OneTimeSetUp]
+        public void OpenBrowser()
+        {
+            //Next three lines are the follow up
+            options = new ChromeOptions();
+            options.AddArgument("--headless");
+            driver = new ChromeDriver(options);
+            driver.Manage().Window.Maximize();
+            driver.Url = BaseUrl;
+
+            firstInput  = driver.FindElement(By.Id("number1"));
+            secondInput = driver.FindElement(By.Id("number2"));
+            operationField = driver.FindElement(By.Id("operation"));
+            calcButton = driver.FindElement(By.Id("calcButton"));
+            resultField = driver.FindElement(By.Id("result"));
+            resetButton = driver.FindElement(By.Id("resetButton"));
+
+        }
+
+        [OneTimeTearDown]
+        public void CloseBrowser()
+        {
+            driver.Quit();  
+        }
+
+        [TestCase("10", "+", "2", "Result: 12")]
+        [TestCase("-10", "+", "-2", "Result: -12")]
+        [TestCase("10", "*", "2", "Result: 20")]
+        [TestCase("-10", "*", "-2", "Result: 20")]
+        [TestCase("10", "-", "2", "Result: 8")]
+        [TestCase("-10", "-", "-2", "Result: -8")]
+        public void Test_Sum_Two_Negative_Numbers(string firstNum, string operation, string secondNum, string expectedResult)
+        {
+            //Arrange
+            resetButton.Click();
+            firstInput.SendKeys(firstNum);
+            operationField.SendKeys(operation);
+            secondInput.SendKeys(secondNum);
+
+            //Act
+            calcButton.Click();
+            //Assert
+            Assert.That(expectedResult, Is.EqualTo(resultField.Text));
+        }
+
+    }
+}
