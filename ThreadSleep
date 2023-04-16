@@ -1,0 +1,49 @@
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+
+namespace Waits
+{
+    public class WebDriverWaitExamples
+    {
+        private WebDriver driver;
+        private const string BaseUrl = "http://uitestpractice.com/";
+
+        [SetUp]
+        public void Setup()
+        {
+            driver = new ChromeDriver();
+            driver.Manage().Window.Maximize();
+            driver.Url = BaseUrl;
+        }
+        [TearDown]
+        public void CloseBrowser()
+        {
+            driver.Quit();
+        }
+
+        [Test]
+        public void Wait_ThreadSleep()
+        {
+            var AjaxLink = driver.FindElement(By.LinkText("AjaxCall"));
+            AjaxLink.Click();
+
+            var internalAjaxLink = driver.FindElement(By.LinkText("This is a Ajax link"));
+            internalAjaxLink.Click();
+            //Thread Sleep wait is implemented here for 20s
+            Thread.Sleep(20000);
+            var textElementText = driver.FindElement(By.Id("Result")).Text;
+            Assert.That(textElementText.Contains("Selenium is a portable software testing framework for web applications."));
+
+            driver.Navigate().Refresh();
+
+            internalAjaxLink = driver.FindElement(By.LinkText("This is a Ajax link"));
+            internalAjaxLink.Click();
+
+            Thread.Sleep(20000);
+            textElementText = driver.FindElement(By.Id("Result")).Text;
+
+            Assert.That(textElementText.Contains("Selenium is a portable software testing framework for web applications."));
+        }
+
+    }
+}
