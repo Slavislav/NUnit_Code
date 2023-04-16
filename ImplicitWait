@@ -1,0 +1,54 @@
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+
+namespace Waits
+{
+    public class WebDriverWaitImplicit
+    {
+        private WebDriver driver;
+        private const string BaseUrl = "http://uitestpractice.com/";
+
+        [SetUp]
+        public void Setup()
+        {
+            driver = new ChromeDriver();
+            driver.Manage().Window.Maximize();
+            driver.Url = BaseUrl;
+            //implicit on setup level that adds wait for each and every test element
+           // driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(20);
+        }
+        [TearDown]
+        public void CloseBrowser()
+        {
+            driver.Quit();
+        }
+
+        [Test]
+        public void Wait_Implicit()
+        {
+            //Implicit wait is added here for 20 seconds, added once on Test level or Setup level . 
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(20);
+
+            var AjaxLink = driver.FindElement(By.LinkText("AjaxCall"));
+            AjaxLink.Click();
+
+            var internalAjaxLink = driver.FindElement(By.LinkText("This is a Ajax link"));
+            internalAjaxLink.Click();
+            
+            
+            var textElementText = driver.FindElement(By.ClassName("ContactUs")).Text;
+            Assert.That(textElementText.Contains("Selenium is a portable software testing"));
+
+            driver.Navigate().Refresh();
+
+            internalAjaxLink = driver.FindElement(By.LinkText("This is a Ajax link"));
+            internalAjaxLink.Click();
+
+            
+            textElementText = driver.FindElement(By.ClassName("ContactUs")).Text;
+
+            Assert.That(textElementText.Contains("Selenium is a portable software testing"));
+        }
+
+    }
+}
