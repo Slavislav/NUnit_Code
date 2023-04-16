@@ -1,0 +1,61 @@
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+//This library has to be imported in order to integrate Explicit waits
+using OpenQA.Selenium.Support.UI;
+using SeleniumExtras.WaitHelpers;
+
+namespace Waits
+{
+    public class WebDriverWaitSeleniumExtras
+
+    {
+        private WebDriver driver;
+        //Defined here
+        private WebDriverWait wait;
+        private const string BaseUrl = "http://uitestpractice.com/";
+
+        [SetUp]
+        public void Setup()
+        {
+            driver = new ChromeDriver();
+            driver.Manage().Window.Maximize();
+            driver.Url = BaseUrl;
+
+        }
+        [TearDown]
+        public void CloseBrowser()
+        {
+            driver.Quit();
+        }
+
+        [Test]
+        public void Wait_Implicit()
+        {
+            //Defined in the test itself
+            this.wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
+
+            var AjaxLink = driver.FindElement(By.LinkText("AjaxCall"));
+            AjaxLink.Click();
+
+            var internalAjaxLink = driver.FindElement(By.LinkText("This is a Ajax link"));
+            internalAjaxLink.Click();
+
+            //With the library this is no longer 3 lines of code, but stuck with just one line added with ExpectedConditions
+            var textElementText = wait.Until(ExpectedConditions.ElementIsVisible(By.ClassName("ContactUs")));
+
+
+            Assert.That(textElementText.Text.Contains("Selenium is a portable software testing"));
+
+            driver.Navigate().Refresh();
+
+            internalAjaxLink = driver.FindElement(By.LinkText("This is a Ajax link"));
+            internalAjaxLink.Click();
+
+            //Wait element which explicitly points to the element that we want to find after refreshing the page
+            textElementText = wait.Until(ExpectedConditions.ElementIsVisible(By.ClassName("ContactUs")));
+
+            Assert.That(textElementText.Text.Contains("Selenium is a portable software testing"));
+        }
+
+    }
+}
