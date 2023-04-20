@@ -1,0 +1,43 @@
+using NUnit.Framework;
+using OpenQA.Selenium.Appium.Service;
+using OpenQA.Selenium.Appium.Windows;
+using OpenQA.Selenium.Appium;
+using AppiumCalculatorTestsPOM.Pages;
+
+namespace AppiumCalculatorTestsPOM.Tests
+{
+    public class Tests
+    {
+        private const string appiumServer = "http://127.0.0.1:4723/wd/hub";
+        private const string appLocation = @"C:\Users\test1\Downloads\SummatorDesktopApp.exe";
+        private WindowsDriver<WindowsElement> driver;
+        private AppiumOptions appiumOptions;
+        private AppiumLocalService appiumLocalService;
+        private CalculatorPage page;
+
+
+
+        [SetUp]
+        public void Setup()
+        {
+            this.appiumLocalService = new AppiumServiceBuilder().UsingAnyFreePort().Build();
+            appiumLocalService.Start();
+            this.appiumOptions = new AppiumOptions();
+            appiumOptions.AddAdditionalCapability("app", appLocation);
+            appiumOptions.AddAdditionalCapability("PlatformName", "Windows");
+            this.driver = new WindowsDriver<WindowsElement>(appiumLocalService, appiumOptions);
+            this.page = new CalculatorPage(driver);
+        }
+        [TearDown]
+        public void CloseApp()
+        {
+            driver.Quit();
+        }
+        [Test]
+        public void Test_Calculate_TwoPositiveNumbers()
+        {
+            var result = page.CalculateTwoNumbers("5", "10");
+            Assert.That(result, Is.EqualTo("15"));
+        }
+    }
+}
