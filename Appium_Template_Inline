@@ -1,0 +1,60 @@
+using NUnit.Framework;
+using OpenQA.Selenium.Appium;
+using OpenQA.Selenium.Appium.Service;
+using OpenQA.Selenium.Appium.Windows;
+
+namespace AppiumAgain
+{
+    public class Tests
+    {
+        private const string appiumServer = "http://127.0.0.1:4723/wd/hub";
+        private const string appLocation = @"C:\Users\test1\Downloads\SummatorDesktopApp.exe";
+        private WindowsDriver<WindowsElement> driver;
+        private AppiumOptions appiumOptions;
+        private AppiumLocalService appiumLocalService;
+        [SetUp]
+        public void OpenApplication()
+        {
+            //Start using the Desktop Appium Server
+            //this.appiumOptions = new AppiumOptions();
+            //appiumOptions.AddAdditionalCapability("app", appLocation);
+            //appiumOptions.AddAdditionalCapability("PlatformName", "Windows");
+            //this.driver = new WindowsDriver<WindowsElement> (new Uri(appiumServer), appiumOptions);
+
+            //Start using headless mode for Appium
+            this.appiumLocalService = new AppiumServiceBuilder().UsingAnyFreePort().Build();
+            appiumLocalService.Start();
+            this.appiumOptions = new AppiumOptions();
+            appiumOptions.AddAdditionalCapability("app", appLocation);
+            appiumOptions.AddAdditionalCapability("PlatformName", "Windows");
+            this.driver = new WindowsDriver<WindowsElement> (appiumLocalService, appiumOptions);
+
+        }
+
+        [TearDown]
+        public void CloseApplication()
+        {
+            driver.Quit();
+            appiumLocalService.Dispose();
+        }
+
+        [Test]
+        public void Test_Sum_TwoPositiveNumbers()
+        {
+            //Arrange
+            var firstField = driver.FindElementByAccessibilityId("textBoxFirstNum");
+            var secondField = driver.FindElementByAccessibilityId("textBoxSecondNum");
+            var resultField = driver.FindElementByAccessibilityId("textBoxSum");
+            var calcButton = driver.FindElementByAccessibilityId("buttonCalc");
+
+            //Act
+            firstField.SendKeys("5");
+            secondField.SendKeys("15");
+            calcButton.Click();
+
+            //Assert
+            Assert.That(resultField.Text, Is.EqualTo("20"));
+
+        }
+    }
+}
